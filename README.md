@@ -21,5 +21,9 @@ python3 extra_label.py 1
 ```
 python3 diversity.py 1
 ```
+- To carry out one run (with `task id=1`) of the experiments investigating the effece of calibration data size (Appendix C), run the following code in the terminal under `/ACS_paper`:
+```
+python3 calib_size.py 1
+```
 The results can be found in the `results` folder.
 
