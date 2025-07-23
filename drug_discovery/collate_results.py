@@ -26,9 +26,7 @@ for quantile_indexer in range(6):
 
 for seed in tqdm(range(6000)):
    _, quantile_indexer, alpha_indexer = variants[seed]
-    #print(f'metrics_c{couple}_s{setting}_j{job}.csv')
-    #print(pd.read_csv(f'sharpe_results/metrics_c{couple}_s{setting}_j{job}.csv', header=False).to_numpy().astype(float))
-   #  try:
+
    acs_results = pd.read_csv(f'dti_similarity_results/metrics_v{seed}.csv', header=None).to_numpy().astype(float)[0]
    for metric in range(3):
       results_dict[quantile_indexer, alpha_indexer, 0, metric].append(acs_results[metric])
@@ -36,15 +34,6 @@ for seed in tqdm(range(6000)):
    for metric in range(3):
       results_dict[quantile_indexer, alpha_indexer, 1, metric].append(vanilla_results[metric])
       
-   #  except:
-   #     print(f'Result doesnt exist for variant = {seed}')
-   #     dne += 1
-
-# for quantile_indexer in range(4):
-#     print("----------------------------")
-#     print(f'ACS FDR, Power, ESS for quantile = {quantiles[quantile_indexer]}: [{np.mean(results_dict[quantile_indexer,0,0])} (+/- {np.std(results_dict[quantile_indexer,0,0])/np.sqrt(len((results_dict[quantile_indexer,0,0])))}), {np.mean(results_dict[quantile_indexer,0,0])} (+/- {np.std(results_dict[quantile_indexer,0,1])/np.sqrt(len((results_dict[quantile_indexer,0,1])))}), {np.mean(results_dict[quantile_indexer,0,2])} (+/- {np.std(results_dict[quantile_indexer,0,2])/np.sqrt(len((results_dict[quantile_indexer,0,2])))})]')
-#     print(f'CS FDR, Power, ESS for quantile = {quantiles[quantile_indexer]}: [{np.mean(results_dict[quantile_indexer,0,0])} (+/- {np.std(results_dict[quantile_indexer,0,0])/np.sqrt(len((results_dict[quantile_indexer,1,0])))}), {np.mean(results_dict[quantile_indexer,1,0])} (+/- {np.std(results_dict[quantile_indexer,1,1])/np.sqrt(len((results_dict[quantile_indexer,1,1])))}), {np.mean(results_dict[quantile_indexer,1,2])} (+/- {np.std(results_dict[quantile_indexer,1,2])/np.sqrt(len((results_dict[quantile_indexer,1,2])))})]')
-#     print("----------------------------")
 
 
 alphas = ['alpha=0.25', 'alpha=0.3', 'alpha=0.35', 'alpha=0.4']
