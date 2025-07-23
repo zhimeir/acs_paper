@@ -85,6 +85,8 @@ cd cxr/run
 python3 ../fdr_ada_ensemble.py --task_id $id
 ```
 
+## Real data application: Diverse drug discovery
 
+Code for reproducing our drug discovery experiments can be found in the folder `drug_discovery`. The notebook `drug_data_preprocess.ipynb` cleans the data and, in particular, generates the file `cleaned_drug_data.csv` as well as the directory (and its contents) `permutations`. The script `diversity_driver.py` can then be run to produce our results; it accepts one integer command line argument, between 0 and 5999 inclusive, which governs the random seed, quantile, and value of alpha at which to to run both ACS (with diversity-aware ordering) and CS. Results are stored in `dti_similarity_results` and the script `collate_results.py` should be used to collate all results (once done running) into CSVs in `csvs_to_plot`.
 
 
