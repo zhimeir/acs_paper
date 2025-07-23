@@ -84,7 +84,6 @@ def filter(ttrain, dcalib, dtest, similarityMatrix, alpha, div_index = 0.4, c = 
 
     model = models.model_initialize(**config)
 
-    #model.train(ttrain)
 
     """Initialization"""
     sc_rec = np.ones(n + m)  # 1 = not screened, 0 = screened
@@ -96,7 +95,6 @@ def filter(ttrain, dcalib, dtest, similarityMatrix, alpha, div_index = 0.4, c = 
     Y_calib = dcalib['Label'].values
     Y_all = np.concatenate([Y_calib, c[n:]])
 
-    #print(len(Y_calib), len(Y_all), len(sc_rec), n, m)
 
     # Initial hFDP
     hfdp = (1 + np.sum(sc_rec * cal_id * (Y_all <= c))) / np.sum(sc_rec * test_id) * m / (1 + n)
@@ -104,10 +102,7 @@ def filter(ttrain, dcalib, dtest, similarityMatrix, alpha, div_index = 0.4, c = 
     """Sequential screening"""
     while hfdp > alpha and np.sum(sc_rec * test_id) > 0:
         print(hfdp)
-        # X_sc = X_calib[(1-sc_rec).astype(bool)[:n], :]
-        # Y_sc = Y_calib[(1-sc_rec).astype(bool)[:n]]
-        # X_usc = X_calib[sc_rec.astype(bool)[:n], :]
-        # X_remain = np.concatenate([X_usc, X_test])
+
 
         calib_sc = dcalib.iloc[(1-sc_rec).astype(bool)[:n]]
 
@@ -118,17 +113,16 @@ def filter(ttrain, dcalib, dtest, similarityMatrix, alpha, div_index = 0.4, c = 
             count += 1
 
             Yhat_test = softmax(model.predict(pd.concat([dcalib, dtest]).reset_index(drop=True)))
-            #record.append(Yhat_test[n:] * 1.0)
+
 
             remaining_similarity_matrix = similarityMatrix[sc_rec.astype(bool)][:,sc_rec.astype(bool)]
             if div_index > 0:
-                #X_remain = np.concatenate([X_calib, X_test])[sc_rec == 1, :]
+
                 Yhat_remain = Yhat_test[sc_rec == 1] * 1.0
                 es = remaining_similarity_matrix*Yhat_remain*Yhat_remain[:,np.newaxis]
                 
                 print("cvxpy start...")
-                #constraint_matrix = np.vstack((np.ones(es.shape[0]), Yhat_remain))
-                #constraint_equality = np.array([1./(1-alpha), 1.])
+
                 xi = cp.Variable(es.shape[0])
                 constraints = [xi >= 0,
                                xi.T @ Yhat_remain == 1]#./es.shape[0],
@@ -139,21 +133,7 @@ def filter(ttrain, dcalib, dtest, similarityMatrix, alpha, div_index = 0.4, c = 
                 print("Status:", prob.status)
                 div_prob = xi.value
                 print("cvxpy end...")
-                # print(div_prob)
-                # print(np.linalg.cholesky(es))
-                # print(alpha)
-                # print(Yhat_remain)
-
-                # print(f'poss soln: {np.all(np.linalg.pinv(constraint_matrix)@constraint_equality >= 0)}')
-                # print(constraint_matrix @ np.linalg.pinv(constraint_matrix) @constraint_equality == constraint_equality)
                 
-                # es_inv = np.linalg.inv(es)
-                # base1 = np.dot(es_inv, Yhat_remain)
-                # base2 = np.dot(es_inv, np.ones(len(Yhat_remain)))
-                # AA = np.dot(Yhat_remain, base2)
-                # BB = np.dot(Yhat_remain, base1)
-                # CC = np.dot(np.ones(len(Yhat_remain)), base2)
-                # div_prob = (-AA + BB / (1 - alpha)) * base2 - (AA / (1 - alpha) - CC) * base1
                 Yhat_test[sc_rec == 1] = (1 - div_index) * Yhat_remain + div_index * div_prob / np.max(div_prob)
 
         usc_id = np.where(sc_rec > 0)[0]
@@ -226,7 +206,7 @@ calib_test_ratio = 1./3#2./3
 dcalib = ddata.iloc[calib_test_perm[0:int(len(ddata)*calib_test_ratio+1)]].reset_index(drop=True)
 dtest = ddata.iloc[calib_test_perm[int(1+len(ddata)*calib_test_ratio):len(ddata)]].reset_index(drop=True)
 ytest = dtest['Label'].values
-#dtest = dtest.drop('Label', axis=1)
+
 
 
 print("***")
@@ -259,15 +239,13 @@ calibq = np.zeros(dcalib.shape[0])
 for i in range(dcalib.shape[0]):
     tenc = dcalib['Target Sequence'].iloc[i]
     tsub = ttrain['Target Sequence'] == tenc
-    # print(tsub)
+
     if sum(tsub) == 0:
         allb = ttrain 
     else:
         allb = ttrain[tsub]
 
-    # allb = ttrain[]
-    # print(allb['Label'])
-    # print(allb)
+
     quantile = np.quantile(allb['Label'], quantiles[quantile_indexer])
     calibq[i] = quantile
 
@@ -325,13 +303,11 @@ bh_results = [bh_fdp, bh_power, bh_similarity]
 
 
 print(bh_fdp, bh_power,bh_rej.sum())
-#print(f'Running means: {np.mean(acs_fdrs), np.mean(acs_powers)}')
+
 
 with open(f"dti_similarity_results/metrics_v{seed}.csv", "at") as file:
     file.write(",".join(map(str, acs_results)) + "\n")
 
-# with open(f"sharpe_results/vanilla_rejections_c{couple}_s{setting}_j{job}.csv", "at") as file:
-#     file.write(",".join(map(str, vanilla_rejections)) + "\n")
 
 with open(f"dti_similarity_results/vanilla_metrics_v{seed}.csv", "at") as file:
     file.write(",".join(map(str, bh_results)) + "\n")
