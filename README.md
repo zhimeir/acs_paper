@@ -62,7 +62,7 @@ cd qa/run
 python3 ../fdr_ada_ensemble.py --task_id $id
 ```
 
-## Chest X-ray report generation (```/cxr```)
+### Chest X-ray report generation (```/cxr```)
 
 Chest X-ray (CXR) report generation and scores extraction follow the implementation in <https://github.com/yugjerry/conformal-alignment>  and commands can be also found in `/cxr/run`.
 
